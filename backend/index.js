@@ -79,13 +79,22 @@ app.put("/books/:id", (req, res) => {
   if (cover) {
     q += ` cover = ${JSON.stringify(cover)} WHERE id = ${bookId} `;
   }
+
  
   db.query(q, (err, data) => {
     console.log("updatedquery: " + q)
     if (err) return res.json({
       error: true,
-      message: `Error in updating books, please provide any value`,
+      message: `Invalid request check the request body or bookId`,
     });
+
+    if (data.affectedRows === 0) {
+      return res.json({
+        error: true,
+        message: `Book with ID ${bookId} not found.`,
+      });
+    }
+
     if(title){
       return res.json({
         error:false,
