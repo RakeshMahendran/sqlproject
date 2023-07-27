@@ -37,7 +37,9 @@ app.get("/books", (req, res) => {
         message: `Error in getting books ${err}`,
       });
     }
-    return res.json(data);
+    return res.json({
+      books: data,
+    });
   });
 });
 
