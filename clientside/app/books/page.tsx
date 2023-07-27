@@ -10,16 +10,14 @@ import Link from "next/link";
 
 const Page = () => {
   const booksState:any = useSelector((state: RootState) => state.books.books);
-
+  
   const dispatch = useDispatch<AppDispatch>();
   
   useEffect(() => {
     dispatch(fetchbooks());
   }, [dispatch]);
 
-  const handleCreate:any = () =>{
 
-  }
   console.log("bookState",booksState.books);
   return (
     <div className="text-white">
@@ -28,9 +26,20 @@ const Page = () => {
           <FiBookOpen className="text-white mt-1" />
           <p>Bookit</p>
         </div>
-        <Link href="/books/create" className="px-6 py-1 text-white rounded-md border border-white border-solid">
-          Create Book
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/books/update"
+            className="px-6 py-1 text-white rounded-md border border-white border-solid"
+          >
+            Update Book
+          </Link>
+          <Link
+            href="/books/create"
+            className="px-6 py-1 text-white rounded-md border border-white border-solid"
+          >
+            Post Book
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-10 md:gap-20 mt-5 justify-center items-center">

@@ -7,7 +7,7 @@ import axios from "axios";
 export interface bookProps {
   id: number;
   title: string;
-  desc: string;
+  description: string;
   cover: string;
 }
 
@@ -15,6 +15,13 @@ export interface BookState {
   loading: boolean;
   books: bookProps[];
   err: string | null | undefined;
+}
+
+interface BookFormData {
+  title: string;
+  description: string;
+  cover: string;
+  id: number;
 }
 
 const initialState: BookState = {
@@ -29,17 +36,38 @@ export const fetchbooks = createAsyncThunk<any>("users/getBooks", () => {
     .then((response: any) => response.data);
 });
 
-export const createbooks = createAsyncThunk<any>(
-  "users/createBooks", 
-  async (bookData,{rejectWithValue}) => {
-   try {
-    const response = await axios.post<bookProps>("http://localhost:7000/books",bookData);
-    return response.data;
-   } catch (error:any) {
-    return rejectWithValue(error.response.data);
-   }
-});
+export const createbooks = createAsyncThunk<bookProps, BookFormData>(
+  "users/createBooks",
+  async (bookData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post<bookProps>(
+        "http://localhost:7000/books",
+        bookData
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
+export const updatebooks = createAsyncThunk<bookProps, BookFormData>(
+  "users/updateBooks",
+  async (bookData, { rejectWithValue }) => {
+    let bookId: any = bookData?.id;
+    bookId = JSON.parse(bookId);
+    console.log("bookId", bookId, typeof bookId, bookData);
+    try {
+      const response = await axios.put<bookProps>(
+        `http://localhost:7000/books/${bookId}`,
+        bookData
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const bookSlice = createSlice({
   name: "books",
@@ -51,23 +79,9 @@ export const bookSlice = createSlice({
         state.loading = true;
         state.err = null;
       })
-      .addCase(createbooks.fulfilled, (state, action) => {
-        state.loading = false;
-        state.err = null;
-        state.books.push(action.payload);
-      })
-      .addCase(createbooks.rejected, (state, action) => {
-        state.loading = false;
-        state.err = action.error.message;
-        state.books = []
-      })
       .addCase(fetchbooks.fulfilled, (state, action) => {
         state.loading = false;
         state.books = action.payload;
-        state.err = null;
-      })
-      .addCase(fetchbooks.pending, (state) => {
-        state.loading = true;
         state.err = null;
       })
       .addCase(fetchbooks.rejected, (state, action) => {
@@ -76,8 +90,36 @@ export const bookSlice = createSlice({
         state.err =
           action.error.message ??
           `Error in fetching books + ${action.error.message}`;
+      })
+      .addCase(createbooks.pending, (state) => {
+        state.loading = true;
+        state.err = null;
+      })
+      .addCase(createbooks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.err = null;
+        state.books.push(action.payload);
+      })
+      .addCase(createbooks.rejected, (state, action) => {
+        state.loading = false;
+        state.err = action.error.message;
+        state.books = [];
+      })
+      .addCase(updatebooks.pending, (state) => {
+        state.loading = true;
+        state.err = null;
+      })
+      .addCase(updatebooks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.err = null;
+        state.books.push(action.payload);
+      })
+      .addCase(updatebooks.rejected, (state, action) => {
+        state.loading = false;
+        state.err = action.error.message;
+        state.books = [];
       });
   },
 });
 
-export default bookSlice.reducer
+export default bookSlice.reducer;

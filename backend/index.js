@@ -45,7 +45,7 @@ app.get("/books", (req, res) => {
 
 app.post("/books", (req, res) => {
   const title = req.body.title;
-  const desc = req.body.desc;
+  const description = req.body.description;
   const cover = req.body.cover;
 
   if (!title) {
@@ -53,13 +53,14 @@ app.post("/books", (req, res) => {
       message: "Title must be provided",
     });
   }
-  if (!desc) {
+  if (!description) {
     return res.json({
-      message: "Desc must be provided",
+      message: "description must be provided",
     });
   }
-  const q = "INSERT INTO bookstore (`title`, `desc`, `cover`) VALUES (?, ?, ?)";
-  const values = [title, desc, cover];
+  const q =
+    "INSERT INTO bookstore (`title`, `description`, `cover`) VALUES (?, ?, ?)";
+  const values = [title, description, cover];
 
   db.query(q, values, (err, data) => {
     if (err)
@@ -78,26 +79,33 @@ app.post("/books", (req, res) => {
 app.put("/books/:id", (req, res) => {
   const bookId = req.params.id;
   const title = req.body.title;
-  const desc = req.body.desc;
+  const description = req.body.description;
   const cover = req.body.cover;
-  let q = "UPDATE bookstore SET";
-  const values = [];
+  let q = "UPDATE bookstore SET ";
+  const values = {
+    title,
+    description,
+    cover,
+  };
+  console.log(values, "values");
   if (title) {
-    q += ` title = ${JSON.stringify(title)} WHERE id = ${bookId} `;
+    q += ` title = ${JSON.stringify(title)},`;
   }
-  if (desc) {
-    q += ` desc = ${JSON.stringify(desc)} WHERE id = ${bookId} `;
+  if (description) {
+    q += ` description = ${JSON.stringify(description)},`;
   }
   if (cover) {
-    q += ` cover = ${JSON.stringify(cover)} WHERE id = ${bookId} `;
+    q += ` cover = ${JSON.stringify(cover)},`;
   }
-
+  
+  q = q.slice(0,-1)
+  q = q + ` WHERE ID = ${bookId}`
   db.query(q, (err, data) => {
     console.log("updatedquery: " + q);
     if (err)
       return res.json({
         error: true,
-        message: `Invalid request check the request body or bookId`,
+        message: `Invalid request check the request body or bookId: ${err}`,
       });
 
     if (data.affectedRows === 0) {
@@ -114,10 +122,10 @@ app.put("/books/:id", (req, res) => {
         data: data,
       });
     }
-    if (desc) {
+    if (description) {
       return res.json({
         error: false,
-        message: "Book desc updated",
+        message: "Book description updated",
         data: data,
       });
     }
