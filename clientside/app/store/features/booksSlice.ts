@@ -14,7 +14,7 @@ export interface bookProps {
 export interface BookState {
   loading: boolean;
   books: bookProps[];
-  err: string | null;
+  err: string | null | undefined;
 }
 
 const initialState: BookState = {
@@ -23,11 +23,23 @@ const initialState: BookState = {
   err: "",
 };
 
-export const fetchbooks = createAsyncThunk("users/getBooks", () => {
+export const fetchbooks = createAsyncThunk<any>("users/getBooks", () => {
   return axios
     .get<bookProps>("http://localhost:7000/books")
     .then((response: any) => response.data);
 });
+
+export const createbooks = createAsyncThunk<any>(
+  "users/createBooks", 
+  async (bookData,{rejectWithValue}) => {
+   try {
+    const response = await axios.post<bookProps>("http://localhost:7000/books",bookData);
+    return response.data;
+   } catch (error:any) {
+    return rejectWithValue(error.response.data);
+   }
+});
+
 
 export const bookSlice = createSlice({
   name: "books",
@@ -35,6 +47,20 @@ export const bookSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(fetchbooks.pending, (state) => {
+        state.loading = true;
+        state.err = null;
+      })
+      .addCase(createbooks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.err = null;
+        state.books.push(action.payload);
+      })
+      .addCase(createbooks.rejected, (state, action) => {
+        state.loading = false;
+        state.err = action.error.message;
+        state.books = []
+      })
       .addCase(fetchbooks.fulfilled, (state, action) => {
         state.loading = false;
         state.books = action.payload;
@@ -54,4 +80,4 @@ export const bookSlice = createSlice({
   },
 });
 
-export default bookSlice;
+export default bookSlice.reducer
