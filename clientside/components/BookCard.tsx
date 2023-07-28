@@ -1,13 +1,28 @@
 "use client";
 
 import React from "react";
-import { bookProps } from "@/app/store/features/booksSlice";
+import { bookProps, 
+  deletebooks 
+} from "@/app/store/features/booksSlice";
+import { FaTrashAlt } from 'react-icons/fa';
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/store/store";
+
 
 export interface BookCardProps {
   book: bookProps;
 }
 
 const BookCard: React.FC<BookCardProps> = ({ book }) => {
+    const booksState: any = useSelector(
+      (state: RootState) => state.books.books
+    );
+   console.log("bookStateDelete",booksState);
+   const dispatch = useDispatch<AppDispatch>();
+  const handleDelete = (bookId:any) =>{
+    console.log("Clicked delete")
+    dispatch(deletebooks(bookId))
+  }
   return (
     <div className="flex justify-center items-center bg-white rounded-lg h-[525px]">
       <div className="flex flex-col w-full px-4 py-4 gap-3">
@@ -28,6 +43,11 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
           <p className="text-xl font-bold font-sans text-green-600">$20</p>
           <button className="px-6 py-1 text-white rounded-md bg-primary-500">
             Buy
+          </button>
+          <button 
+          onClick={()=>{handleDelete(book.id)}}
+          >
+            <FaTrashAlt className="text-red-500 w-10 h-5" />
           </button>
         </div>
       </div>

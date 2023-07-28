@@ -149,7 +149,12 @@ app.delete("/books/:id", (req, res) => {
   console.log("bookId: " + bookId);
   db.query(q, (err, data) => {
     if (err) return res.json({ error: true, message: err });
-    console.log("deleted successfully");
+      if (data.affectedRows === 0) {
+        return res.json({
+          error: true,
+          message: `Book with ID ${bookId} not found.`,
+        });
+      }
     return res.json({
       error: false,
       message: "Deleted successfully",
