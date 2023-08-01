@@ -32,7 +32,7 @@ const initialState: BookState = {
 
 export const fetchbooks = createAsyncThunk<any>("users/getBooks", () => {
   return axios
-    .get<bookProps>("http://bookstore-api-8ihn.onrender.com/books")
+    .get<bookProps>("https://bookstore-api-8ihn.onrender.com/books")
     .then((response: any) => response.data);
 });
 
@@ -41,7 +41,7 @@ export const createbooks = createAsyncThunk<bookProps, BookFormData>(
   async (bookData, { rejectWithValue }) => {
     try {
       const response = await axios.post<bookProps>(
-        "http://bookstore-api-8ihn.onrender.com/books",
+        "https://bookstore-api-8ihn.onrender.com/books",
         bookData
       );
       return response.data;
@@ -59,7 +59,7 @@ export const updatebooks = createAsyncThunk<bookProps, BookFormData>(
     console.log("bookId", bookId, typeof bookId, bookData);
     try {
       const response = await axios.put<bookProps>(
-        `http://bookstore-api-8ihn.onrender.com/books/${bookId}`,
+        `https://bookstore-api-8ihn.onrender.com/books/${bookId}`,
         bookData
       );
       return response.data;
@@ -75,7 +75,7 @@ export const deletebooks = createAsyncThunk<number, number>(
     console.log("bookId", bookId, typeof bookId);
     try {
       const response = await axios.delete<bookProps>(
-        `http://bookstore-api-8ihn.onrender.com/books/${bookId}`
+        `https://bookstore-api-8ihn.onrender.com/books/${bookId}`
       );
       return bookId; // Return the deleted bookId
     } catch (error: any) {
