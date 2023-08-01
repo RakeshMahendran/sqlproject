@@ -12,11 +12,11 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const db = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "root",
+  host: "bookstoredb.cjoke4ysvsvr.eu-north-1.rds.amazonaws.com",
+  user: "admin",
   port: "3306",
-  password: "r@kesh r@kesh99",
-  database: "curdschema",
+  password: "mypassword",
+  database: "bookstoreschema",
 });
 
 db.connect((err) => {
@@ -30,13 +30,14 @@ db.connect((err) => {
 app.get("/books", (req, res) => {
   const q = "SELECT * FROM bookstore";
   db.query(q, (err, data) => {
-    console.log("SQL connected");
     if (err) {
-      return res.json({
+      console.error("Error executing the query:", err);
+      return res.status(500).json({
         error: true,
-        message: `Error in getting books ${err}`,
+        message: `Error in getting books: ${err.message}`,
       });
     }
+    console.log("Query executed successfully.");
     return res.json({
       books: data,
     });
@@ -97,9 +98,9 @@ app.put("/books/:id", (req, res) => {
   if (cover) {
     q += ` cover = ${JSON.stringify(cover)},`;
   }
-  
-  q = q.slice(0,-1)
-  q = q + ` WHERE ID = ${bookId}`
+
+  q = q.slice(0, -1);
+  q = q + ` WHERE ID = ${bookId}`;
   db.query(q, (err, data) => {
     console.log("updatedquery: " + q);
     if (err)
@@ -149,12 +150,12 @@ app.delete("/books/:id", (req, res) => {
   console.log("bookId: " + bookId);
   db.query(q, (err, data) => {
     if (err) return res.json({ error: true, message: err });
-      if (data.affectedRows === 0) {
-        return res.json({
-          error: true,
-          message: `Book with ID ${bookId} not found.`,
-        });
-      }
+    if (data.affectedRows === 0) {
+      return res.json({
+        error: true,
+        message: `Book with ID ${bookId} not found.`,
+      });
+    }
     return res.json({
       error: false,
       message: "Deleted successfully",
